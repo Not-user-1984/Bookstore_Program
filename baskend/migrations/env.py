@@ -1,84 +1,82 @@
 from logging.config import fileConfig
-from core.config import settings
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from db.base_class import Base
+from db.session import SessionLocal, engine
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Импортируем модели SQLAlchemy для миграций
+from db.base_class import Base
+from db.models.books import Book
+from db.models.books import Tag
+from db.models.books import User
+from db.models.books import Cart
+from db.models.books import CartItem
+
+# Используйте текущую конфигурацию приложения для создания соединения с БД
+from core.config import settings
+
 config = context.config
 
-sections = config.config_ini_section
-config.set_section_option(sections, "DB_HOST", settings.POSTGRES_SERVER)
-config.set_section_option(sections, "DB_USER", settings.POSTGRES_USER)
-config.set_section_option(sections, "DB_PORT", settings.POSTGRES_PORT)
-config.set_section_option(sections, "DB_PASS", settings.POSTGRES_PASSWORD)
-config.set_section_option(sections, "DB_NAME", settings.POSTGRES_DB)
+# Извлечение параметров подключения из URL-адреса базы данных
+config.set_main_option('sqlalchemy.url', str(settings.DATABASE_URL))
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
-
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
+# Чтобы иметь возможность импортировать модели SQLAlchemy и использовать их для миграций,
+# мы должны добавить их в контекст Alembic.
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+# Как только мы установили соединение с базой данных и импортировали все необходимые модели SQLAlchemy,
+# мы можем определить функцию create_context (), которая будет использоваться в Alembic для создания объекта миграций.
+def create_context():
+    # Эта строка кода забирает все объекты моделей SQLAlchemy, чтобы Alembic мог различать старые и новые версии.
+    return {
+        'cheese': None,
+        'metadata': target_metadata,
+        'session': SessionLocal(bind=engine),
+        'alembic_version': context.get_context().version
+    }
 
-
-def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
-    url = config.get_main_option("sqlalchemy.url")
+# Эта строка кода забирает все объекты моделей SQLAlchemy, чтобы Alembic мог различать старые и новые версии.
+def run_migrations_offline():
     context.configure(
-        url=url,
+        url=str(settings.DATABASE_URL),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        user_module_prefix='models.',
+        include_schemas=True
     )
-
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
+# Эта строка кода забирает все объекты моделей SQLAlchemy, чтобы Alembic мог различать старые и новые версии.
+def run_migrations_online():
+    # этот блок кода используется для подключения к базе данных
+    engine = engine_from_config(
+        config.get_section(config.config_ini_section),
+        prefix='sqlalchemy.',
+        poolclass=pool.NullPool)
+    connection = engine.connect()
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        user_module_prefix='db.models.',
+        include_schemas=True
     )
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
-
+    try:
         with context.begin_transaction():
             context.run_migrations()
+    finally:
+        connection.close()
 
+# Определяем конфигурацию логирования, которая будет использоваться в Alembic.
+fileConfig(config.config_file_name)
 
+# Вызовите функцию create_context () перед запуском миграционного скрипта.
+# Если вы хотите запустить миграции офлайн, вы можете вызвать run_migrations_offline ().
+# Если вы хотите запустить миграции онлайн, вы можете вызвать run_migrations_online ().
 if context.is_offline_mode():
     run_migrations_offline()
 else:

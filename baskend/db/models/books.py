@@ -1,3 +1,4 @@
+
 from db.base_class import Base
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
@@ -7,6 +8,13 @@ book_tags = Table(
     Base.metadata,
     Column("book_id", Integer, ForeignKey("book.id"), primary_key=True),
     Column("tag_id", Integer, ForeignKey("tag.id"), primary_key=True),
+)
+
+favorite_books = Table(
+    "favorite_books",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
+    Column("book_id", Integer, ForeignKey("book.id"), primary_key=True),
 )
 
 
@@ -39,17 +47,9 @@ class User(Base):
     books = relationship("Book", back_populates="owner")
     favorite_books = relationship(
         "Book",
-        secondary = favorite_books,
+        secondary=favorite_books,
         back_populates="favorited_by")
     carts = relationship("Cart", back_populates="owner")
-
-
-favorite_books = Table(
-    "favorite_books",
-    Base.metadata,
-    Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
-    Column("book_id", Integer, ForeignKey("book.id"), primary_key=True),
-)
 
 
 class Cart(Base):
