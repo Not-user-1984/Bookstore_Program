@@ -1,7 +1,16 @@
-
 from db.base_class import Base
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
+from sqlalchemy import (JSON, Boolean, Column, ForeignKey, Integer, String,
+                        Table)
 from sqlalchemy.orm import relationship
+
+user_roles = Table(
+    'user_roles',
+    Base.metadata,
+    Column('id', Integer, primary_key=True),
+    Column('role_name', String),
+    Column('user_id', Integer, ForeignKey("user.id")),
+    Column("permissions", JSON)
+)
 
 book_tags = Table(
     "book_tags",
@@ -51,6 +60,14 @@ class User(Base):
         secondary=favorite_books,
         back_populates="favorited_by")
     carts = relationship("Cart", back_populates="owner")
+    roles = relationship("user_roles", back_populates="owner")
+
+
+class UserRole(Base):
+    id = Column(Integer, primary_key=True, index=True)
+    role_name = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user = relationship("User", back_populates="roles")
 
 
 class Cart(Base):
