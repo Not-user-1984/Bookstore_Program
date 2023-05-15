@@ -4,7 +4,7 @@ from fastapi_users.authentication import (AuthenticationBackend,
 SECRET = "SECRET"
 
 cookie_transport = CookieTransport(
-    cookie_name="CodeBooks,", cookie_max_age=3600
+    cookie_name="CodeBooks", cookie_max_age=3600
     )
 
 
