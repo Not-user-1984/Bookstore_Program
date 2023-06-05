@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from core.config import settings
+from config import settings
 from db.base_class import Base
 from db.models.books import Book, favorite_books
 from fastapi import Depends
@@ -23,9 +23,12 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     is_active: bool = Column(Boolean, default=True, nullable=False)
     is_superuser: bool = Column(Boolean, default=False, nullable=False)
     is_verified: bool = Column(Boolean, default=False, nullable=False)
-
-
-
+    # favorite_books = relationship(
+    #     "Book",
+    #     secondary=favorite_books,
+    #     back_populates="favorited_by")
+    # carts = relationship("Cart", back_populates="owner")
+    # roles = relationship("user_roles", back_populates="owner")
 
 
 engine = create_async_engine(DATABASE_URL)

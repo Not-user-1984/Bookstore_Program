@@ -33,4 +33,4 @@ def protected_route(user: User = Depends(curred_user)):
 
 @router.get("/unprotected-route")
 def unprotected_route():
-    return f'привет, друг!!'
+    return 'привет, друг!!'
