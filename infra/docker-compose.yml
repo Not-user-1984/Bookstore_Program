@@ -61,7 +61,7 @@ services:
 
   pgadmin:
     container_name: pgadmin_container
-    image: dpage/pgadmin4:5.7
+    image: dpage/pgadmin4:7
     platform: linux/amd64
     environment:
       PGADMIN_DEFAULT_EMAIL: "habrpguser@habr.com"

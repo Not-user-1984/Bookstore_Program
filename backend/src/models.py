@@ -1,7 +1,8 @@
-from db.base_class import Base
+from src.db.base_class import Base
 from sqlalchemy import (JSON, Boolean, Column, ForeignKey, Integer, String,
-                        Table)
+                        Table,)
 from sqlalchemy.orm import relationship
+from fastapi_users.db import SQLAlchemyBaseUserTable
 
 user_roles = Table(
     'user_roles',
@@ -46,7 +47,7 @@ class Tag(Base):
     books = relationship("Book", secondary=book_tags, back_populates="tags")
 
 
-class User(Base):
+class User(SQLAlchemyBaseUserTable[int], Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
@@ -58,7 +59,8 @@ class User(Base):
     favorite_books = relationship(
         "Book",
         secondary=favorite_books,
-        back_populates="favorited_by")
+        back_populates="favorited_by",
+        )
     carts = relationship("Cart", back_populates="owner")
     roles = relationship("user_roles", back_populates="owner")
 

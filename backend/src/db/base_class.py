@@ -1,12 +1,17 @@
-from typing import Any
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy import Column, Integer
+
+from sqlalchemy.orm import declarative_base, declared_attr
 
 
-@as_declarative()
-class Base:
-    id: Any
-    __name__: str
+class PreBase:
+    id = Column(Integer, primary_key=True)
 
     @declared_attr
-    def __tablename__(cls) -> str:
+    def __tablename__(cls):
+        """Создает в моделях-наследниках свойство __tablename__ из
+        имени модели, переведённого в нижний регистр.
+        """
         return cls.__name__.lower()
+
+
+Base = declarative_base(cls=PreBase)

@@ -2,6 +2,7 @@
 from typing import Optional
 
 from fastapi_users import exceptions, models, schemas
+from fastapi_users.manager import BaseUserManager
 from auth.database import User, get_user_db
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
