@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from src.models import User
+from book_service.models import User
 from config import settings
 from db.base_class import Base
 from fastapi import Depends

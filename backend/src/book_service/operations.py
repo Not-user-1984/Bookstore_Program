@@ -1,5 +1,5 @@
-from src.db.session import get_session
-from src.models import Book
+from db.session import get_session
+from .models import Book
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
