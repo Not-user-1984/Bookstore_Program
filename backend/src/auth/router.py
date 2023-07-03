@@ -2,7 +2,7 @@ from auth.auth import auth_backend
 from auth.database import User
 from auth.manager import get_user_manager
 from auth.schemas import UserCreate, UserRead
-from fastapi import Depends, APIRouter
+from fastapi import APIRouter, Depends
 from fastapi_users import FastAPIUsers
 
 
@@ -26,11 +26,11 @@ router.include_router(
 curred_user = fastapi_users.current_user()
 
 
-@router.get("/protected-route")
-def protected_route(user: User = Depends(curred_user)):
-    return f'Привет, {user.username}'
+# @router.get("/protected-route")
+# def protected_route(user: User = Depends(curred_user)):
+#     return f'Привет, {user.username}'
 
 
-@router.get("/unprotected-route")
-def unprotected_route():
-    return 'привет, друг!!'
+# @router.get("/unprotected-route")
+# def unprotected_route():
+#     return 'привет, друг!!'

@@ -9,3 +9,5 @@ app = FastAPI(
 )
 
 app.include_router(main_router)
+
+# допилить регистaрцию разобраться со созданием user

@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from book_service.models import User
+# from book_service.models import User
 from config import settings
 from db.base_class import Base
 from fastapi import Depends
@@ -7,9 +7,23 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import sessionmaker
+from fastapi_users.db import SQLAlchemyBaseUserTable
 
-DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{ settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
-Base: DeclarativeMeta = declarative_base()
+DATABASE_URL = (
+    "postgresql+asyncpg://" +
+    settings.POSTGRES_USER + ":" +
+    settings.POSTGRES_PASSWORD + "@" +
+    settings.POSTGRES_SERVER + ":" +
+    settings.POSTGRES_PORT + "/" +
+    settings.POSTGRES_DB
+)
+
+
+Base: DeclarativeMeta=declarative_base()
+
+
+class User(SQLAlchemyBaseUserTable[int]):
+    pass
 
 
 engine = create_async_engine(DATABASE_URL)
