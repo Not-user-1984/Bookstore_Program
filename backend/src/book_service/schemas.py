@@ -2,128 +2,111 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class UserBase(BaseModel):
-    email: Optional[str] = None
-    username: Optional[str] = None
+class TagBase(BaseModel):
+    name: str
 
 
-class UserCreate(UserBase):
-    password: str
-
-
-class UserUpdate(UserBase):
-    password: Optional[str] = None
-
-
-class User(UserBase):
-    id: int
-    email: str
-    username: str
-
-    class Config:
-        orm_mode = True
-
-
-class ProfileUserBase(BaseModel):
-    username: Optional[str] = None
-
-
-class ProfileUserCreate(ProfileUserBase):
+class TagCreate(TagBase):
     pass
 
 
-class ProfileUserUpdate(ProfileUserBase):
-    pass
-
-
-class ProfileUser(ProfileUserBase):
+class Tag(TagBase):
     id: int
-    username: str
 
     class Config:
         orm_mode = True
 
 
 class BookBase(BaseModel):
-    name: Optional[str] = None
-    author: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[int] = None
-    category: Optional[str] = None
-    is_available: Optional[bool] = None
+    name: str
+    author: str
+    description: Optional[str]
+    price: int
+    category: str
+    is_available: bool
 
 
 class BookCreate(BookBase):
     pass
 
 
-class BookUpdate(BookBase):
-    pass
-
-
 class Book(BookBase):
     id: int
-    owner: Optional[ProfileUser] = None
-    tags: Optional[List[Tag]] = []
+    owner_id: int
+    tags: List[Tag] = []
 
     class Config:
         orm_mode = True
 
-class TagBase(BaseModel):
-    name: Optional[str] = None
 
-class TagCreate(TagBase):
-    pass
-
-class TagUpdate(TagBase):
-    pass
+class UserBase(BaseModel):
+    email: str
+    username: str
 
 
-class Tag(TagBase):
+class UserCreate(UserBase):
+    password: str
+
+
+class User(UserBase):
     id: int
-    books: Optional[List[Book]] = []
+    is_active: bool
+    books: List[Book] = []
 
     class Config:
         orm_mode = True
 
 
 class CartItemBase(BaseModel):
-    book_id: Optional[int] = None
-    quantity: Optional[int] = None
-    price: Optional[int] = None
+    cart_id: int
+    book_id: int
+    quantity: int
+
 
 class CartItemCreate(CartItemBase):
     pass
 
-class CartItemUpdate(CartItemBase):
-    pass
 
 class CartItem(CartItemBase):
     id: int
-    book: Optional[Book] = None
+    book: Book
 
     class Config:
         orm_mode = True
 
 
 class CartBase(BaseModel):
-    owner_id: Optional[int] = None
-    total_price: Optional[int] = None
+    owner_id: int
 
 
 class CartCreate(CartBase):
     pass
 
 
-class CartUpdate(CartBase):
-    pass
-
-
 class Cart(CartBase):
     id: int
-    owner: Optional[ProfileUser] = None
-    items: Optional[List[CartItem]] = []
+    total_price: int
+    items: List[CartItem] = []
 
     class Config:
         orm_mode = True
 
+
+class ProfileUserBase(BaseModel):
+    username: str
+
+
+class ProfileUserCreate(ProfileUserBase):
+    pass
+
+
+class ProfileUser(ProfileUserBase):
+    id: int
+    user_id: int
+    user: User
+    books: List[Book] = []
+    favorite_books: List[Book] = []
+    carts: List[Cart] = []
+
+    class Config:
+        orm_mode = True

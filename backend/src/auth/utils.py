@@ -1,4 +1,4 @@
-from book_service.models import User
+from auth.models import User
 from db.session import get_async_session
 from fastapi import Depends
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase

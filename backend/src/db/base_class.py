@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer
-
+from sqlalchemy import MetaData
 from sqlalchemy.orm import declarative_base, declared_attr
+
+metadata = MetaData()
 
 
 class PreBase:

@@ -13,7 +13,7 @@ class Settings:
     POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", 5432)
-    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "tdd")
+    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "fastapi_b_db")
     SECRET_AUTH: str = os.getenv("SECRET_AUTH")
     DATABASE_URL: str = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}?async_fallback=True"
     app_title: str = 'CodexZone'

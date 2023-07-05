@@ -1,2 +1,2 @@
 
-from auth.router import router as user_router
+from auth.routers import router as user_router
