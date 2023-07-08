@@ -1,54 +1,102 @@
-from db.base_class import Base, metadata
-from sqlalchemy import (Boolean, Column, ForeignKey, Integer, String, Table)
-from sqlalchemy.orm import relationship
-# from auth.models import User
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
+
+from db.base import Base
 
 book_tags = Table(
     "book_tags",
-    metadata,
+    Base.metadata,
     Column("book_id", Integer, ForeignKey("book.id"), primary_key=True),
-    Column("tag_id", Integer, ForeignKey("tag.id"), primary_key=True)
+    Column("tag_id", Integer, ForeignKey("tag.id"), primary_key=True),
+    extend_existing=True
 )
+
 
 favorite_books = Table(
     "favorite_books",
-    metadata,
-    Column("profileUser_id", Integer, ForeignKey("profileUser.id"), primary_key=True),
+    Base.metadata,
+    Column(
+        "profileUser_id",
+        Integer,
+        ForeignKey("profileUser.id"),
+        primary_key=True
+            ),
     Column("book_id", Integer, ForeignKey("book.id"), primary_key=True),
+    extend_existing=True
 )
 
 
-class Tag(Base):
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    books = relationship("Book", secondary=book_tags, back_populates="tags")
-
-
-class Book(Base):
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    author = Column(String, nullable=False)
-    description = Column(String)
-    price = Column(Integer, nullable=False)
-    category = Column(String, nullable=False)
-    is_available = Column(Boolean(), default=True)
-    tags = relationship("Tag", secondary=book_tags, back_populates="books")
-
-
 class ProfileUser(Base):
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, nullable=False)
-    books = relationship("Book", back_populates="owner")
+    __tablename__ = "profileUser"
+    __table_args__ = {'extend_existing': True}
+
+    user = relationship(
+        "auth.models.User",
+        back_populates="profile_user",
+        uselist=False,
+        cascade="all, delete"
+        )
+    books = relationship("Book", back_populates="owner", cascade="all, delete")
     favorite_books = relationship(
         "Book",
         secondary=favorite_books,
         back_populates="favorited_by",
-    )
-    carts = relationship("Cart", back_populates="owner")
+        cascade="all, delete")
+    carts = relationship("Cart", back_populates="owner", cascade="all, delete")
+
+
+class Book(Base):
+
+    __tablename__ = "book"
+    __table_args__ = {'extend_existing': True}
+
+    name = Column(String, nullable=False)
+    author = Column(String, nullable=False)
+    description = Column(String)
+    price = Column(Integer, nullable=False)
+    category_id = Column(Integer, ForeignKey("category.id"), nullable=False)
+    category = relationship(
+        "Category",
+        backref=backref("books", cascade="all, delete"))
+    is_available = Column(Boolean(), default=True)
+    tags = relationship(
+        "Tag", secondary=book_tags,
+        back_populates="books",
+        cascade="all, delete")
+    owner_id = Column(
+        Integer,
+        ForeignKey("profileUser.id", ondelete="SET NULL")
+        )
+    owner = relationship("ProfileUser", back_populates="books")
+    favorited_by = relationship(
+        "ProfileUser",
+        secondary=favorite_books,
+        back_populates="favorite_books"
+        )
+
+
+class Category(Base):
+    __tablename__ = "category"
+    __table_args__ = {'extend_existing': True}
+
+    name = Column(String, nullable=False)
+
+
+class Tag(Base):
+    __tablename__ = "tag"
+    __table_args__ = {'extend_existing': True}
+    name = Column(String, nullable=False)
+    books = relationship(
+        "Book",
+        secondary=book_tags,
+        back_populates="tags",
+        cascade="all, delete")
 
 
 class CartItem(Base):
-    id = Column(Integer, primary_key=True)
+    __tablename__ = "cartItem"
+    __table_args__ = {'extend_existing': True}
+
     cart_id = Column(Integer, ForeignKey("cart.id", ondelete="CASCADE"))
     cart = relationship("Cart", back_populates="items")
     book_id = Column(Integer, ForeignKey("book.id", ondelete="CASCADE"))
@@ -57,8 +105,17 @@ class CartItem(Base):
 
 
 class Cart(Base):
-    id = Column(Integer, primary_key=True)
-    owner_id = Column(Integer, ForeignKey(ProfileUser.id, ondelete="CASCADE")) 
+    __tablename__ = "cart"
+    __table_args__ = {'extend_existing': True}
+
+    owner_id = Column(
+        Integer,
+        ForeignKey("profileUser.id", ondelete="CASCADE")
+        )
     owner = relationship("ProfileUser", back_populates="carts")
     total_price = Column(Integer, nullable=False, default=0)
-    items = relationship("CartItem", back_populates="cart")
+    items = relationship(
+        "CartItem",
+        back_populates="cart",
+        cascade="all, delete"
+        )
